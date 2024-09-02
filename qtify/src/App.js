@@ -1,11 +1,17 @@
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
+import Navbar from "./components/Navbar/Navbar";
+import HeroSection from './components/Hero/Hero';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-       <h1>This is my cool website</h1>
-      </header>
-    </div>
+    <Router>
+      <div>
+        <Navbar />
+        <HeroSection />
+      </div>
+    </Router>
   );
 }
 
