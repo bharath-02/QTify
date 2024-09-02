@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Card from "../Card/Card";
+import Carousel from "../Carousel/Carousel";
 import styles from "./Section.module.css";
 
 const Section = ({ title, endpoint }) => {
@@ -27,7 +28,18 @@ const Section = ({ title, endpoint }) => {
           {isCollapsed ? "Expand" : "Collapse"}
         </button>
       </div>
-      {!isCollapsed && (
+      {!isCollapsed ? (
+        <Carousel
+          items={albums.map((album) => (
+            <Card
+              key={album.id}
+              albumImage={album.image}
+              albumName={album.title}
+              followCount={album.follows}
+            />
+          ))}
+        />
+      ) : (
         <div className={styles.grid}>
           {albums.map((album) => (
             <Card
