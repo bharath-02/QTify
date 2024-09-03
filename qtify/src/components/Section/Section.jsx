@@ -1,6 +1,8 @@
 // Section.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Tabs, Tab } from "@mui/material";
+
 import Card from "../Card/Card";
 import Carousel from "../Carousel/Carousel";
 import styles from "./Section.module.css";
@@ -8,45 +10,84 @@ import styles from "./Section.module.css";
 const Section = ({ title, endpoint }) => {
   const [albums, setAlbums] = useState([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState("All");
 
   useEffect(() => {
-    axios
-      .get(endpoint)
-      .then((response) => setAlbums(response.data))
-      .catch((error) => console.error("Error fetching albums:", error));
-  }, [endpoint]);
+    if (title === "Songs") {
+      // Fetch genres and songs for Songs section
+      axios
+        .get("https://qtify-backend-labs.crio.do/genres")
+        .then((response) => setGenres(response.data.data))
+        .catch((error) => console.error("Error fetching genres:", error));
+      axios
+        .get(endpoint)
+        .then((response) => setAlbums(response.data))
+        .catch((error) => console.error("Error fetching songs:", error));
+    } else {
+      // Fetch albums for other sections
+      axios
+        .get(endpoint)
+        .then((response) => setAlbums(response.data))
+        .catch((error) => console.error("Error fetching albums:", error));
+    }
+  }, [endpoint, title]);
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleTabChange = (event, newValue) => {
+    setSelectedGenre(newValue);
+  };
+
+
+  // Filter items based on the selected genre (for Songs section)
+  const filteredItems =
+    title === "Songs" && selectedGenre !== "All"
+      ? albums.filter((item) => item.genre === selectedGenre)
+      : albums;
+
   return (
     <div className={styles.section}>
       <div className={styles.header}>
         <h2>{title}</h2>
-        <button onClick={toggleCollapse}>
-          {isCollapsed ? "Expand" : "Collapse"}
-        </button>
+        {title === "Songs" ? (
+          <Tabs
+            value={selectedGenre}
+            onChange={handleTabChange}
+            aria-label="genres tabs"
+          >
+            <Tab label="All" value="All" />
+            {genres.map((genre) => (
+              <Tab key={genre.key} label={genre.label} value={genre.key} />
+            ))}
+          </Tabs>
+        ) : (
+          <button onClick={toggleCollapse}>
+            {isCollapsed ? "Expand" : "Collapse"}
+          </button>
+        )}
       </div>
-      {!isCollapsed ? (
+      {!isCollapsed && title !== "Songs" ? (
         <Carousel
-          items={albums.map((album) => (
+          items={filteredItems.map((item) => (
             <Card
-              key={album.id}
-              albumImage={album.image}
-              albumName={album.title}
-              followCount={album.follows}
+              key={item.id}
+              albumImage={item.image}
+              albumName={item.title}
+              followCount={item.follows}
             />
           ))}
         />
       ) : (
         <div className={styles.grid}>
-          {albums.map((album) => (
+          {filteredItems.map((item) => (
             <Card
-              key={album.id}
-              albumImage={album.image}
-              albumName={album.title}
-              followCount={album.follows}
+              key={item.id}
+              albumImage={item.image}
+              albumName={item.title}
+              followCount={item.follows}
             />
           ))}
         </div>
