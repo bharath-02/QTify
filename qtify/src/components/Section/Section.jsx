@@ -65,7 +65,7 @@ const Section = ({ title, endpoint }) => {
           </Tabs>
         ) : (
           <button onClick={toggleCollapse}>
-            {isCollapsed ? "Expand" : "Collapse"}
+            {isCollapsed ? "Show All" : "Collapse"}
           </button>
         )}
       </div>
